@@ -1,18 +1,32 @@
 import Html exposing (..)
 import Html.Attributes exposing (..)
+import Date.Extra.Format exposing (format)
+import Date exposing (Date, fromTime, now)
+import Task
+import Time
+import Date.Extra.Config.Config_en_us exposing (config)
 
 main : Program Never Model Msg
-main = beginnerProgram { model = model, view = view, update = update }
+main = program { init = init, view = view, update = update, subscriptions = subscriptions }
 
-type alias Model = ()
+type alias Model = Date
 
-model : Model
-model = ()
+init : (Model, Cmd Msg)
+init = (fromTime 0, Task.perform UpdateDate now)
 
-type Msg = Unused
+type Msg = UpdateDate Date
 
-update : Msg -> Model -> Model
-update _ model = model
+update : Msg -> Model -> (Model, Cmd Msg)
+update msg model =
+    case msg of
+        UpdateDate newDate -> (newDate, Cmd.none)
 
 view : Model -> Html Msg
-view model = div [class "content"] [text "Hello world"]
+view model =
+    div [class "clock"] [
+         div [class "time"] [text (format config "%H:%M:%S" model)],
+         div [class "date"] [text (format config "%b %-@d %Y" model)]
+        ]
+
+subscriptions : Model -> Sub Msg
+subscriptions _ = Time.every Time.second (fromTime >> UpdateDate)

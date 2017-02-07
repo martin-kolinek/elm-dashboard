@@ -8,10 +8,21 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 95%;
+    font-family: Futura,Trebuchet MS,Arial,sans-serif;
 }
 
-div.content {
+div.clock {
     background-color: #444455;
+    color: #CCCCCC;
     padding: 2em;
     border-radius: 0.5em;
+    text-align: center;
+}
+
+div.time {
+    font-size: 4em;
+}
+
+div.date {
+    font-size: 2.6em;
 }
