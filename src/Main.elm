@@ -25,7 +25,7 @@ view : Model -> Html Msg
 view model =
     div [class "clock"] [
          div [class "time"] [text (format config "%H:%M:%S" model)],
-         div [class "date"] [text (format config "%b %-@d %Y" model)]
+         div [class "date"] [text (format config "%a, %B %-@d %Y" model)]
         ]
 
 subscriptions : Model -> Sub Msg
