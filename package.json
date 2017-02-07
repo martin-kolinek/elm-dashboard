@@ -1,8 +1,8 @@
 {
   "name": "elm-dashboard",
   "version": "1.0.0",
-  "description": "",
-  "author": "",
+  "description": "A sample application to be used during an elm workshop",
+  "author": "Martin Kolinek",
   "license": "MIT",
   "devDependencies": {
     "browser-sync": "^2.18.7",
