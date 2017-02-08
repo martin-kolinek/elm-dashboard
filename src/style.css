@@ -9,13 +9,27 @@ body {
     align-items: center;
     min-height: 95%;
     font-family: Futura,Trebuchet MS,Arial,sans-serif;
+    color: #CCCCCC;
+}
+
+div.dashboard-item {
+    background-color: #444455;
+    padding: 2em;
+    border-radius: 0.5em;
+    margin: 1em;
 }
 
 div.clock {
-    background-color: #444455;
-    color: #CCCCCC;
-    padding: 2em;
-    border-radius: 0.5em;
+    text-align: center;
+}
+
+div.news a {
+    color: #CCCCFF
+}
+
+div.news h1 {
+    margin-top: 0;
+    font-size: 1.7em;
     text-align: center;
 }
 
