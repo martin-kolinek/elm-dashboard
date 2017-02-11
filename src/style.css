@@ -1,15 +1,27 @@
+@font-face {
+    font-family: 'FontAwesome';
+    src: url('fonts/fontawesome-webfont.eot?v=4.7.0');
+    src: url('fonts/fontawesome-webfont.eot?#iefix&v=4.7.0') format('embedded-opentype'), url('fonts/fontawesome-webfont.woff2?v=4.7.0') format('woff2'), url('fonts/fontawesome-webfont.woff?v=4.7.0') format('woff'), url('fonts/fontawesome-webfont.ttf?v=4.7.0') format('truetype'), url('fonts/fontawesome-webfont.svg?v=4.7.0#fontawesomeregular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
 html {
     height: 100%;
 }
 
 body {
     background-color: #333344;
-    display:flex;
-    justify-content: center;
-    align-items: center;
     min-height: 95%;
     font-family: Futura,Trebuchet MS,Arial,sans-serif;
     color: #CCCCCC;
+}
+
+div.dashboard-container {
+    display:flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
 }
 
 div.dashboard-item {
@@ -31,6 +43,10 @@ div.date {
     font-size: 1.5em;
 }
 
+div.news {
+    width: 40em;
+}
+
 div.news a {
     color: #CCCCFF
 }
@@ -43,6 +59,25 @@ div.news h1 {
 
 h1.news-error {
     color: #FFAAAA
+}
+
+div.news-item {
+    margin: 0.3em;
+    background-color: #555566;
+    padding: 0.3em;
+    border-radius: 0.2em;
+    font-size: 85%;
+}
+
+div.news-item span.dismiss-news {
+    font-family: FontAwesome;
+    cursor: pointer;
+    float: right;
+    margin-right: 0.4em;
+}
+
+div.news-item span.dismiss-news:before {
+    content: "\f00d";
 }
 
 input {

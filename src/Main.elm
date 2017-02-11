@@ -70,7 +70,7 @@ newsItemDecoder = Json.Decode.map3 NewsItem
                   (Json.Decode.field "Title" Json.Decode.string)
 
 view : Model -> Html Msg
-view model = div [] [
+view model = div [class "dashboard-container"] [
               viewClock model,
               viewNews model
              ]
@@ -93,7 +93,8 @@ viewNews { currentNews } = div [class "news dashboard-item"]
 viewNewsItem : NewsItem -> Html Msg
 viewNewsItem { uri, title } =
     div [class "news-item"] [
-         a [href uri, target "_blank"] [text title]
+         a [href uri, target "_blank"] [text title],
+         span [class "dismiss-news"] []
         ]
 
 subscriptions : Model -> Sub Msg
