@@ -1,5 +1,6 @@
 import Html exposing (..)
 import Html.Attributes exposing (..)
+import Html.Events exposing (..)
 import Date.Extra.Format exposing (format)
 import Date exposing (Date, fromTime, now)
 import Task
@@ -8,6 +9,7 @@ import Date.Extra.Config.Config_en_us exposing (config)
 import HttpBuilder
 import Json.Decode
 import Http
+import Set
 
 main : Program Never Model Msg
 main = program { init = init, view = view, update = update, subscriptions = subscriptions }
@@ -22,7 +24,8 @@ type News = NewsItems (List NewsItem) | NewsProblem String
 
 type alias Model = {
         currentDate: Date,
-        currentNews: News
+        currentNews: News,
+        dismissedNews: Set.Set Int
     }
 
 init : (Model, Cmd Msg)
@@ -31,10 +34,11 @@ init = (initModel, Cmd.batch [Task.perform UpdateDate now, fetchNews])
 initModel : Model
 initModel = {
         currentDate = fromTime 0,
-        currentNews = NewsItems []
+        currentNews = NewsItems [],
+        dismissedNews = Set.empty
     }
 
-type Msg = UpdateDate Date | SetNews (News) | UpdateNews
+type Msg = UpdateDate Date | SetNews (News) | UpdateNews | DismissNewsItem Int
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
@@ -42,6 +46,7 @@ update msg model =
         UpdateDate newDate -> ({ model | currentDate = newDate }, Cmd.none)
         SetNews news -> ({model | currentNews = news}, Cmd.none)
         UpdateNews -> (model, fetchNews)
+        DismissNewsItem id -> ({ model | dismissedNews = Set.insert id model.dismissedNews }, Cmd.none)
 
 fetchNews : Cmd Msg
 fetchNews =
@@ -82,19 +87,23 @@ viewClock { currentDate } =
          div [class "date"] [text (format config "%a, %B %-@d %Y" currentDate)]
         ]
 
+findVisibleNews : List NewsItem -> Set.Set Int -> List NewsItem
+findVisibleNews newsItems dismissedNews = List.filter (\x -> not (Set.member x.id dismissedNews)) newsItems
+
 viewNews : Model -> Html Msg
-viewNews { currentNews } = div [class "news dashboard-item"]
+viewNews { currentNews, dismissedNews } = div [class "news dashboard-item"]
     (case currentNews of
-         NewsItems [] -> [h1 [] [text "No recent news"]]
-         NewsItems newsItems ->  (h1 [] [text "Latest news"] :: (List.map viewNewsItem newsItems))
+         NewsItems newsItems -> case findVisibleNews newsItems dismissedNews of
+             [] -> [h1 [] [text "No recent news"]]
+             visibleNews -> (h1 [] [text "Latest news"] :: (List.map viewNewsItem visibleNews))
          NewsProblem problem -> [h1 [class "news-error"] [text "Unable to fetch news"], p [class "news-error"] [text problem]]
     )
 
 viewNewsItem : NewsItem -> Html Msg
-viewNewsItem { uri, title } =
+viewNewsItem { uri, title, id } =
     div [class "news-item"] [
          a [href uri, target "_blank"] [text title],
-         span [class "dismiss-news"] []
+         span [class "dismiss-news", onClick (DismissNewsItem id)] []
         ]
 
 subscriptions : Model -> Sub Msg
