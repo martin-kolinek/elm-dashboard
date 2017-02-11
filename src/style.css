@@ -41,6 +41,10 @@ div.news h1 {
     text-align: center;
 }
 
+h1.news-error {
+    color: #FFAAAA
+}
+
 input {
     margin-right: 1em;
     padding: 10px;

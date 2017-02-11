@@ -18,9 +18,11 @@ type alias NewsItem = {
         title: String
     }
 
+type News = NewsItems (List NewsItem) | NewsProblem String
+
 type alias Model = {
         currentDate: Date,
-        currentNews: List NewsItem
+        currentNews: News
     }
 
 init : (Model, Cmd Msg)
@@ -29,16 +31,16 @@ init = (initModel, Cmd.batch [Task.perform UpdateDate now, fetchNews])
 initModel : Model
 initModel = {
         currentDate = fromTime 0,
-        currentNews = [ {id = 3, uri = "https://google.com", title = "Test news item" }]
+        currentNews = NewsItems []
     }
 
-type Msg = UpdateDate Date | SetItems (List NewsItem) | UpdateNews
+type Msg = UpdateDate Date | SetNews (News) | UpdateNews
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
     case msg of
         UpdateDate newDate -> ({ model | currentDate = newDate }, Cmd.none)
-        SetItems items -> ({model | currentNews = items}, Cmd.none)
+        SetNews news -> ({model | currentNews = news}, Cmd.none)
         UpdateNews -> (model, fetchNews)
 
 fetchNews : Cmd Msg
@@ -51,8 +53,12 @@ fetchNews =
 
 parseResponse : Result Http.Error (List NewsItem) -> Msg
 parseResponse response = case response of
-    Ok items -> SetItems items
-    Err _ -> SetItems []
+    Ok items -> SetNews (NewsItems items)
+    Err (Http.BadUrl _) -> SetNews (NewsProblem "Wrong URL for some reason")
+    Err Http.Timeout -> SetNews (NewsProblem "Timeout occurred")
+    Err Http.NetworkError -> SetNews (NewsProblem "Network error (do you have CorsE enabled?)")
+    Err (Http.BadStatus {status}) -> SetNews (NewsProblem ("Http problem: " ++ (toString status.code) ++ " " ++ status.message))
+    Err (Http.BadPayload _ _) -> SetNews (NewsProblem "Unexpected response format")
 
 newsItemsDecoder : Json.Decode.Decoder (List NewsItem)
 newsItemsDecoder = Json.Decode.field "d" (Json.Decode.list newsItemDecoder)
@@ -66,7 +72,7 @@ newsItemDecoder = Json.Decode.map3 NewsItem
 view : Model -> Html Msg
 view model = div [] [
               viewClock model,
-              viewNewsItems model
+              viewNews model
              ]
 
 viewClock : Model -> Html Msg
@@ -76,9 +82,13 @@ viewClock { currentDate } =
          div [class "date"] [text (format config "%a, %B %-@d %Y" currentDate)]
         ]
 
-viewNewsItems : Model -> Html Msg
-viewNewsItems { currentNews } =
-    div [class "news dashboard-item"] (h1 [] [text "Latest news"] :: (List.map viewNewsItem currentNews))
+viewNews : Model -> Html Msg
+viewNews { currentNews } = div [class "news dashboard-item"]
+    (case currentNews of
+         NewsItems [] -> [h1 [] [text "No recent news"]]
+         NewsItems newsItems ->  (h1 [] [text "Latest news"] :: (List.map viewNewsItem newsItems))
+         NewsProblem problem -> [h1 [class "news-error"] [text "Unable to fetch news"], p [class "news-error"] [text problem]]
+    )
 
 viewNewsItem : NewsItem -> Html Msg
 viewNewsItem { uri, title } =
