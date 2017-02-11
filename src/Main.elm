@@ -1,12 +1,10 @@
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.Events exposing (..)
 import Date.Extra.Format exposing (format)
 import Date exposing (Date, fromTime, now)
 import Task
 import Time
 import Date.Extra.Config.Config_en_us exposing (config)
-import BasicAuth
 import HttpBuilder
 import Json.Decode
 import Http
@@ -26,7 +24,7 @@ type alias Model = {
     }
 
 init : (Model, Cmd Msg)
-init = (initModel, Task.perform UpdateDate now)
+init = (initModel, Cmd.batch [Task.perform UpdateDate now, fetchNews])
 
 initModel : Model
 initModel = {
@@ -34,13 +32,14 @@ initModel = {
         currentNews = [ {id = 3, uri = "https://google.com", title = "Test news item" }]
     }
 
-type Msg = UpdateDate Date | SetItems (List NewsItem)
+type Msg = UpdateDate Date | SetItems (List NewsItem) | UpdateNews
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
     case msg of
         UpdateDate newDate -> ({ model | currentDate = newDate }, Cmd.none)
         SetItems items -> ({model | currentNews = items}, Cmd.none)
+        UpdateNews -> (model, fetchNews)
 
 fetchNews : Cmd Msg
 fetchNews =
@@ -88,4 +87,7 @@ viewNewsItem { uri, title } =
         ]
 
 subscriptions : Model -> Sub Msg
-subscriptions _ = Time.every Time.second (fromTime >> UpdateDate)
+subscriptions _ = Sub.batch [
+    Time.every Time.second (fromTime >> UpdateDate),
+    Time.every (2 * Time.minute) (always UpdateNews)
+  ]
