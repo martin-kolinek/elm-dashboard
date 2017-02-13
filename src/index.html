@@ -6,5 +6,20 @@
 <body>
     <div></div>
     <script src="Main.js"></script>
-    <script>Elm.Main.embed(document.querySelector("div"));</script>
+    <script>
+     var app = Elm.Main.embed(document.querySelector("div"));
+     app.ports.loadDismissedNews.subscribe(function() {
+         try {
+             var stored = JSON.parse(localStorage.getItem("dismissedNews"));
+             if(stored) {
+                 app.ports.dismissedNews.send(stored);
+             }
+         } catch(SyntaxError) {
+             localStorage.clear();
+         }
+     });
+     app.ports.saveDismissedNews.subscribe(function(dismissedNews) {
+         localStorage.setItem("dismissedNews", JSON.stringify(dismissedNews));
+     });
+    </script>
 </body>

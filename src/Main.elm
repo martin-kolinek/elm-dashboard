@@ -10,6 +10,7 @@ import HttpBuilder
 import Json.Decode
 import Http
 import Set
+import LocalStorage
 
 main : Program Never Model Msg
 main = program { init = init, view = view, update = update, subscriptions = subscriptions }
@@ -29,7 +30,7 @@ type alias Model = {
     }
 
 init : (Model, Cmd Msg)
-init = (initModel, Cmd.batch [Task.perform UpdateDate now, fetchNews])
+init = (initModel, Cmd.batch [Task.perform UpdateDate now, fetchNews, LocalStorage.loadDismissedNews ()])
 
 initModel : Model
 initModel = {
@@ -38,7 +39,7 @@ initModel = {
         dismissedNews = Set.empty
     }
 
-type Msg = UpdateDate Date | SetNews (News) | UpdateNews | DismissNewsItem Int
+type Msg = UpdateDate Date | SetNews (News) | UpdateNews | DismissNewsItem Int | UpdateDismissedNews (List Int)
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
@@ -46,7 +47,11 @@ update msg model =
         UpdateDate newDate -> ({ model | currentDate = newDate }, Cmd.none)
         SetNews news -> ({model | currentNews = news}, Cmd.none)
         UpdateNews -> (model, fetchNews)
-        DismissNewsItem id -> ({ model | dismissedNews = Set.insert id model.dismissedNews }, Cmd.none)
+        DismissNewsItem id -> updateDismissedNews model (Set.insert id model.dismissedNews)
+        UpdateDismissedNews ids -> updateDismissedNews model (Set.union (Set.fromList ids) model.dismissedNews)
+
+updateDismissedNews : Model -> Set.Set Int -> (Model, Cmd msg)
+updateDismissedNews model newDismissedNews = ( {model | dismissedNews = newDismissedNews}, LocalStorage.saveDismissedNews (Set.toList newDismissedNews))
 
 fetchNews : Cmd Msg
 fetchNews =
@@ -109,5 +114,6 @@ viewNewsItem { uri, title, id } =
 subscriptions : Model -> Sub Msg
 subscriptions _ = Sub.batch [
     Time.every Time.second (fromTime >> UpdateDate),
-    Time.every (2 * Time.minute) (always UpdateNews)
+    Time.every (2 * Time.minute) (always UpdateNews),
+    LocalStorage.dismissedNews (UpdateDismissedNews)
   ]
