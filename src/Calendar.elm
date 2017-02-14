@@ -1,10 +1,16 @@
 module Calendar exposing (Model, Msg, initModel, initCmd, update, view)
 
 import Html exposing (..)
+import Html.Attributes exposing (..)
 import OAuth
 import Http
 import Navigation
 import HttpBuilder
+import Date
+import Json.Decode
+import Json.Decode.Extra
+import Date.Extra.Format exposing (format)
+import Date.Extra.Config.Config_en_us exposing (config)
 
 microsoftAuthClient : OAuth.Client
 microsoftAuthClient =
@@ -23,14 +29,22 @@ microsoftAuthClient =
 
 type alias Model =
     {
-        microsoftOauthToken: Maybe OAuth.Token,
-        calendarString: String
+        microsoftOAuthToken: OAuth.Token,
+        calendar: Calendar
     }
 
-type Msg = MicrosoftAuthorize OAuth.Token | SetCalendar String | RequestMicrosoftAuthorization
+type alias CalendarItem =
+    {
+        startDate: Date.Date,
+        title: String
+    }
+
+type Calendar = CalendarItems (List CalendarItem) | CalendarError String
+
+type Msg = MicrosoftAuthorize OAuth.Token | SetCalendar Calendar | RequestMicrosoftAuthorization
 
 initModel : Model
-initModel = {microsoftOauthToken = Nothing, calendarString = "No calendar"}
+initModel = {microsoftOAuthToken = OAuth.Validated "", calendar = CalendarItems []}
 
 initCmd : Navigation.Location -> Cmd Msg
 initCmd location = OAuth.init microsoftAuthClient location |> Cmd.map authResultToCmd
@@ -43,28 +57,38 @@ authResultToCmd result = case result of
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
     case msg of
-        MicrosoftAuthorize token -> let newModel = { model | microsoftOauthToken = Just token } in (newModel, loadCalendar newModel)
-        SetCalendar str -> ({ model | calendarString = str}, Cmd.none)
+        MicrosoftAuthorize token -> let newModel = { model | microsoftOAuthToken = token } in (newModel, loadCalendar newModel)
+        SetCalendar calendar -> ({ model | calendar = calendar }, Cmd.none)
         RequestMicrosoftAuthorization -> (model, microsoftAuthorize)
 
 loadCalendar : Model -> Cmd Msg
-loadCalendar model = case model.microsoftOauthToken of
-    Nothing -> microsoftAuthorize
-    Just (token) -> case token of
-        OAuth.Validated tokenString ->
-            HttpBuilder.get "https://graph.microsoft.com/v1.0/me/calendarView?StartDateTime=2017-01-01&EndDateTime=2017-01-31" |>
-            HttpBuilder.withHeader "Authorization" ("Bearer " ++ tokenString) |>
-            HttpBuilder.withExpect (Http.expectString) |>
-            HttpBuilder.send parseCalendarResponse
+loadCalendar model = case model.microsoftOAuthToken of
+    OAuth.Validated tokenString ->
+        HttpBuilder.get "https://graph.microsoft.com/v1.0/me/calendarView?StartDateTime=2017-01-01&EndDateTime=2017-01-31" |>
+        HttpBuilder.withHeader "Authorization" ("Bearer " ++ tokenString) |>
+        HttpBuilder.withExpect (Http.expectJson calendarItemsDecoder) |>
+        HttpBuilder.send parseCalendarResponse
+
+calendarItemsDecoder : Json.Decode.Decoder (List CalendarItem)
+calendarItemsDecoder = Json.Decode.field "value" (Json.Decode.list (
+    Json.Decode.map2 CalendarItem
+        (Json.Decode.field "start" (Json.Decode.field "dateTime" Json.Decode.Extra.date))
+        (Json.Decode.field "subject" Json.Decode.string)
+                                                                   ))
 
 microsoftAuthorize : Cmd Msg
 microsoftAuthorize = Navigation.load (OAuth.buildAuthUrl microsoftAuthClient)
 
-parseCalendarResponse : Result Http.Error String -> Msg
+parseCalendarResponse : Result Http.Error (List CalendarItem) -> Msg
 parseCalendarResponse response = case response of
-    Ok str -> SetCalendar str
-    Err (Http.BadStatus resp) as x -> if resp.status.code == 401 then RequestMicrosoftAuthorization else SetCalendar (toString x)
-    Err x -> SetCalendar ("Parse cal resp " ++ toString x)
+    Ok lst -> SetCalendar (CalendarItems lst)
+    Err (Http.BadStatus resp) as x -> if resp.status.code == 401 then RequestMicrosoftAuthorization else SetCalendar (CalendarError (toString x))
+    Err x -> SetCalendar (CalendarError ("Parse cal resp " ++ toString x))
 
 view : Model -> Html Msg
-view model = div [] [text (model.calendarString ++ toString model.microsoftOauthToken)]
+view model = div [class "calendar dashboard-item"] (h1 [] [text "Upcoming events"] :: case model.calendar of
+    CalendarItems items -> List.map viewItem items
+    CalendarError err -> [text err])
+
+viewItem : CalendarItem -> Html Msg
+viewItem { startDate, title } = div [class "calendar-item"] [span [class "calendar-time"] [text (format config "%b %-@d %Y, %H:%M" startDate)], text title]
