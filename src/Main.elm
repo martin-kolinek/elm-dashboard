@@ -11,9 +11,26 @@ import Json.Decode
 import Http
 import Set
 import LocalStorage
+import OAuth
+import Navigation
+
+microsoftAuthClient : OAuth.Client
+microsoftAuthClient =
+    OAuth.newClient
+        {
+            authorizeUrl = "https://login.microsoftonline.com/common/oauth2/v2.0/authorize",
+            tokenUrl = "",
+            validateUrl = ""
+        }
+        {
+            clientId = "f4fbc084-0ef2-4ef6-800a-35305e7bddb4",
+            scopes = ["User.Read", "Calendars.Read"],
+            redirectUrl = "http://localhost:3000",
+            authFlow = OAuth.Implicit
+        }
 
 main : Program Never Model Msg
-main = program { init = init, view = view, update = update, subscriptions = subscriptions }
+main = Navigation.program (always NoMsg) { init = init, view = view, update = update, subscriptions = subscriptions }
 
 type alias NewsItem = {
         id : Int,
@@ -26,20 +43,36 @@ type News = NewsItems (List NewsItem) | NewsProblem String
 type alias Model = {
         currentDate: Date,
         currentNews: News,
-        dismissedNews: Set.Set Int
+        dismissedNews: Set.Set Int,
+        microsoftOauthToken: Maybe OAuth.Token,
+        calendarString: String
     }
 
-init : (Model, Cmd Msg)
-init = (initModel, Cmd.batch [Task.perform UpdateDate now, fetchNews, LocalStorage.loadDismissedNews ()])
+init : Navigation.Location -> (Model, Cmd Msg)
+init location =
+    (initModel,
+    Cmd.batch [
+          Task.perform UpdateDate now,
+          fetchNews,
+          LocalStorage.loadDismissedNews (),
+          OAuth.init microsoftAuthClient location |> Cmd.map authResultToCmd
+         ])
+
+authResultToCmd : Result Http.Error OAuth.Token -> Msg
+authResultToCmd result = case result of
+    Err x -> RequestMicrosoftAuthorization
+    Ok token -> MicrosoftAuthorize token
 
 initModel : Model
 initModel = {
         currentDate = fromTime 0,
         currentNews = NewsItems [],
-        dismissedNews = Set.empty
+        dismissedNews = Set.empty,
+        microsoftOauthToken = Nothing,
+        calendarString = "No calendar yet"
     }
 
-type Msg = UpdateDate Date | SetNews (News) | UpdateNews | DismissNewsItem Int | UpdateDismissedNews (List Int)
+type Msg = UpdateDate Date | SetNews (News) | UpdateNews | DismissNewsItem Int | UpdateDismissedNews (List Int) | NoMsg | MicrosoftAuthorize OAuth.Token | SetCalendar String | RequestMicrosoftAuthorization
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
@@ -49,6 +82,10 @@ update msg model =
         UpdateNews -> (model, fetchNews)
         DismissNewsItem id -> updateDismissedNews model (Set.insert id model.dismissedNews)
         UpdateDismissedNews ids -> updateDismissedNews model (Set.union (Set.fromList ids) model.dismissedNews)
+        NoMsg -> (model, Cmd.none)
+        MicrosoftAuthorize token -> let newModel = { model | microsoftOauthToken = Just token } in (newModel, loadCalendar newModel)
+        SetCalendar str -> ({ model | calendarString = str}, Cmd.none)
+        RequestMicrosoftAuthorization -> (model, microsoftAuthorize)
 
 updateDismissedNews : Model -> Set.Set Int -> (Model, Cmd msg)
 updateDismissedNews model newDismissedNews = ( {model | dismissedNews = newDismissedNews}, LocalStorage.saveDismissedNews (Set.toList newDismissedNews))
@@ -79,10 +116,30 @@ newsItemDecoder = Json.Decode.map3 NewsItem
                   (Json.Decode.field "__metadata" (Json.Decode.field "uri" Json.Decode.string))
                   (Json.Decode.field "Title" Json.Decode.string)
 
+loadCalendar : Model -> Cmd Msg
+loadCalendar model = case model.microsoftOauthToken of
+    Nothing -> microsoftAuthorize
+    Just (token) -> case token of
+        OAuth.Validated tokenString ->
+            HttpBuilder.get "https://graph.microsoft.com/v1.0/me/calendarView?StartDateTime=2017-01-01&EndDateTime=2017-01-31" |>
+            HttpBuilder.withHeader "Authorization" ("Bearer " ++ tokenString) |>
+            HttpBuilder.withExpect (Http.expectString) |>
+            HttpBuilder.send parseCalendarResponse
+
+microsoftAuthorize : Cmd Msg
+microsoftAuthorize = Navigation.load (OAuth.buildAuthUrl microsoftAuthClient)
+
+parseCalendarResponse : Result Http.Error String -> Msg
+parseCalendarResponse response = case response of
+    Ok str -> SetCalendar str
+    Err (Http.BadStatus resp) as x -> if resp.status.code == 401 then RequestMicrosoftAuthorization else SetCalendar (toString x)
+    Err x -> SetCalendar ("Parse cal resp " ++ toString x)
+
 view : Model -> Html Msg
 view model = div [class "dashboard-container"] [
               viewClock model,
-              viewNews model
+              viewNews model,
+              div [] [text (model.calendarString ++ toString model.microsoftOauthToken)]
              ]
 
 viewClock : Model -> Html Msg
