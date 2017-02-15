@@ -4,9 +4,8 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Date
 import Task
-import Date.Extra.Format exposing (format)
-import Date.Extra.Config.Config_en_us exposing (config)
 import Time
+import Date.Extra
 
 type alias Model =
     {
@@ -29,8 +28,8 @@ update msg model =
 view : Model -> Html Msg
 view { currentDate } =
     div [class "clock dashboard-item"] [
-         div [class "time"] [text (format config "%H:%M:%S" currentDate)],
-         div [class "date"] [text (format config "%a, %B %-@d %Y" currentDate)]
+         div [class "time"] [text (Date.Extra.toFormattedString "HH:mm:ss" currentDate)],
+         div [class "date"] [text (Date.Extra.toFormattedString "EEE, MMMM ddd yyyy" currentDate)]
         ]
 
 subscriptions : Sub Msg

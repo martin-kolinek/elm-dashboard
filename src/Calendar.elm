@@ -8,9 +8,7 @@ import Navigation
 import HttpBuilder
 import Date
 import Json.Decode
-import Json.Decode.Extra
-import Date.Extra.Format exposing (format)
-import Date.Extra.Config.Config_en_us exposing (config)
+import Date.Extra
 
 microsoftAuthClient : OAuth.Client
 microsoftAuthClient =
@@ -72,9 +70,15 @@ loadCalendar model = case model.microsoftOAuthToken of
 calendarItemsDecoder : Json.Decode.Decoder (List CalendarItem)
 calendarItemsDecoder = Json.Decode.field "value" (Json.Decode.list (
     Json.Decode.map2 CalendarItem
-        (Json.Decode.field "start" (Json.Decode.field "dateTime" Json.Decode.Extra.date))
+        (Json.Decode.field "start" (Json.Decode.field "dateTime" dateDecoder))
         (Json.Decode.field "subject" Json.Decode.string)
-                                                                   ))
+    ))
+
+dateDecoder : Json.Decode.Decoder Date.Date
+dateDecoder = Json.Decode.string |>
+              Json.Decode.andThen (\x -> case Date.Extra.fromIsoString (x++"Z") of
+                                             Just d -> Json.Decode.succeed d
+                                             Nothing -> Json.Decode.fail "Not a valid date")
 
 microsoftAuthorize : Cmd Msg
 microsoftAuthorize = Navigation.load (OAuth.buildAuthUrl microsoftAuthClient)
@@ -91,4 +95,4 @@ view model = div [class "calendar dashboard-item"] (h1 [] [text "Upcoming events
     CalendarError err -> [text err])
 
 viewItem : CalendarItem -> Html Msg
-viewItem { startDate, title } = div [class "calendar-item"] [span [class "calendar-time"] [text (format config "%b %-@d %Y, %H:%M" startDate)], text title]
+viewItem { startDate, title } = div [class "calendar-item"] [span [class "calendar-time"] [text (Date.Extra.toFormattedString "MMM ddd yyyy, HH:mm" startDate)], text title]
