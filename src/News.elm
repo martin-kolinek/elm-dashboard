@@ -13,7 +13,6 @@ import Time
 type alias NewsItem =
     {
         id : Int,
-        uri: String,
         title: String
     }
 
@@ -73,9 +72,8 @@ newsItemsDecoder : Json.Decode.Decoder (List NewsItem)
 newsItemsDecoder = Json.Decode.field "d" (Json.Decode.list newsItemDecoder)
 
 newsItemDecoder : Json.Decode.Decoder NewsItem
-newsItemDecoder = Json.Decode.map3 NewsItem
+newsItemDecoder = Json.Decode.map2 NewsItem
                   (Json.Decode.field "Id" Json.Decode.int)
-                  (Json.Decode.field "__metadata" (Json.Decode.field "uri" Json.Decode.string))
                   (Json.Decode.field "Title" Json.Decode.string)
 
 findVisibleNews : List NewsItem -> Set.Set Int -> List NewsItem
@@ -91,9 +89,9 @@ view { currentNews, dismissedNews } = div [class "news dashboard-item"]
     )
 
 viewNewsItem : NewsItem -> Html Msg
-viewNewsItem { uri, title, id } =
+viewNewsItem { title, id } =
     div [class "news-item"] [
-         a [href uri, target "_blank"] [text title],
+         a [href ("https://sps2010.erninet.ch/news/Services/Lists/Posts/ViewPost.aspx?ID=" ++ toString id), target "_blank"] [text title],
          span [class "dismiss-news", onClick (DismissNewsItem id)] []
         ]
 
