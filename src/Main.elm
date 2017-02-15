@@ -22,7 +22,8 @@ init location =
     Cmd.batch [
           Clock.initCmd |> Cmd.map ClockMsg,
           News.initCmd |> Cmd.map NewsMsg,
-          Calendar.initCmd location |> Cmd.map CalendarMsg
+          Calendar.initCmd location |> Cmd.map CalendarMsg,
+          Notes.initCmd |> Cmd.map NotesMsg
          ])
 
 initModel : Model
@@ -55,5 +56,6 @@ view model = div [class "dashboard-container"]
 subscriptions : Model -> Sub Msg
 subscriptions model = Sub.batch [
     Clock.subscriptions |> Sub.map ClockMsg,
-    News.subscriptions model.news |> Sub.map NewsMsg
+    News.subscriptions model.news |> Sub.map NewsMsg,
+    Notes.subscriptions |> Sub.map NotesMsg
   ]

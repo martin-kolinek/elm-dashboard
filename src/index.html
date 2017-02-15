@@ -15,11 +15,24 @@
                  app.ports.dismissedNews.send(stored);
              }
          } catch(SyntaxError) {
-             localStorage.clear();
+             localStorage.removeItem("dismissedNews");
          }
      });
      app.ports.saveDismissedNews.subscribe(function(dismissedNews) {
          localStorage.setItem("dismissedNews", JSON.stringify(dismissedNews));
+     });
+     app.ports.loadNotes.subscribe(function() {
+         try {
+             var stored = JSON.parse(localStorage.getItem("notes"));
+             if(stored) {
+                 app.ports.loadedNotes.send(stored);
+             }
+         } catch(SyntaxError) {
+             localStorage.removeItem("notes");
+         }
+     });
+     app.ports.saveNotes.subscribe(function(notes) {
+         localStorage.setItem("notes", JSON.stringify(notes));
      });
     </script>
 </body>
