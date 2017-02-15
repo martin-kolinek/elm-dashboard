@@ -3,6 +3,7 @@ module Notes exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
+import Markdown
 
 type alias Model =
     {
@@ -51,4 +52,4 @@ viewNote : Note -> Html Msg
 viewNote { id, currentlyEditing, content} = div [class "dashboard-item"] (
       if currentlyEditing
       then [textarea [onInput (UpdateNote id), value content] [], button [onClick (EndEditing id)] [text "done"]]
-      else [text content, button [onClick (StartEditing id)] [text "edit"], button [onClick (DeleteNote id)] [text "delete"]])
+      else [Markdown.toHtml [] content, button [onClick (StartEditing id)] [text "edit"], button [onClick (DeleteNote id)] [text "delete"]])
