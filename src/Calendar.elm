@@ -9,6 +9,7 @@ import HttpBuilder
 import Date
 import Json.Decode
 import Date.Extra
+import Task
 
 microsoftAuthClient : OAuth.Client
 microsoftAuthClient =
@@ -60,12 +61,22 @@ update msg model =
         RequestMicrosoftAuthorization -> (model, microsoftAuthorize)
 
 loadCalendar : Model -> Cmd Msg
-loadCalendar model = case model.microsoftOAuthToken of
+loadCalendar model = Task.attempt parseCalendarResponse (Date.now |> Task.andThen (loadCalendarTask model))
+
+createQueryParams : Date.Date -> List (String, String)
+createQueryParams date = [
+    ("StartDateTime", Date.Extra.toUtcIsoString date),
+    ("EndDateTime", Date.Extra.toUtcIsoString (Date.Extra.add Date.Extra.Week 2 date)),
+    ("$orderBy", "start/dateTime")]
+
+loadCalendarTask : Model -> Date.Date -> Task.Task Http.Error (List CalendarItem)
+loadCalendarTask model currentDate = case model.microsoftOAuthToken of
     OAuth.Validated tokenString ->
-        HttpBuilder.get "https://graph.microsoft.com/v1.0/me/calendarView?StartDateTime=2017-01-01&EndDateTime=2017-01-31" |>
+        HttpBuilder.get "https://graph.microsoft.com/v1.0/me/calendarView" |>
+        HttpBuilder.withQueryParams (createQueryParams currentDate) |>
         HttpBuilder.withHeader "Authorization" ("Bearer " ++ tokenString) |>
         HttpBuilder.withExpect (Http.expectJson calendarItemsDecoder) |>
-        HttpBuilder.send parseCalendarResponse
+        HttpBuilder.toTask
 
 calendarItemsDecoder : Json.Decode.Decoder (List CalendarItem)
 calendarItemsDecoder = Json.Decode.field "value" (Json.Decode.list (
@@ -95,4 +106,4 @@ view model = div [class "calendar dashboard-item"] (h1 [] [text "Upcoming events
     CalendarError err -> [text err])
 
 viewItem : CalendarItem -> Html Msg
-viewItem { startDate, title } = div [class "calendar-item"] [span [class "calendar-time"] [text (Date.Extra.toFormattedString "MMM ddd yyyy, HH:mm" startDate)], text title]
+viewItem { startDate, title } = div [class "calendar-item"] [span [class "calendar-time"] [text (Date.Extra.toFormattedString "EEE, MMM ddd yyyy, HH:mm" startDate)], text title]
