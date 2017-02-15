@@ -49,13 +49,13 @@ tryChangeContent : Int -> String -> LocalStorage.Note -> LocalStorage.Note
 tryChangeContent id str note = if note.id == id then {note | content = str} else note
 
 view : Model -> List (Html Msg)
-view { newNote, notes } = div [class "dashboard-item"] [textarea [onInput UpdateNewNote, value newNote] [], button [onClick CreateNote] [text "done"]] :: List.map viewNote notes
+view { newNote, notes } = div [class "dashboard-item note"] [textarea [onInput UpdateNewNote, value newNote] [], button [onClick CreateNote] [text "Save Note"]] :: List.map viewNote notes
 
 viewNote : LocalStorage.Note -> Html Msg
-viewNote { id, currentlyEditing, content} = div [class "dashboard-item"] (
+viewNote { id, currentlyEditing, content} = div [class "dashboard-item note"] (
       if currentlyEditing
-      then [textarea [onInput (UpdateNote id), value content] [], button [onClick (EndEditing id)] [text "done"]]
-      else [Markdown.toHtml [] content, button [onClick (StartEditing id)] [text "edit"], button [onClick (DeleteNote id)] [text "delete"]])
+      then [textarea [onInput (UpdateNote id), value content] [], button [class "done", onClick (EndEditing id)] [text "Save Note"]]
+      else [div [class "edit", onClick (StartEditing id)] [], div [class "remove", onClick (DeleteNote id)] [], Markdown.toHtml [] content])
 
 subscriptions : Sub Msg
 subscriptions = LocalStorage.loadedNotes LoadNotes
