@@ -4,7 +4,7 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-		<title>reveal.js</title>
+		<title>Elm</title>
 
 		<link rel="stylesheet" href="css/reveal.css">
 		<link rel="stylesheet" href="css/theme/black.css">
@@ -24,8 +24,72 @@
 	<body>
 		<div class="reveal">
 			<div class="slides">
-				<section>Slide 1</section>
-				<section>Slide 2</section>
+				  <section data-markdown>
+              <script type="text/template">
+                  # Elm
+                  ### Functional programming in the browser
+              </script>
+          </section>
+				  <section data-markdown>
+              <script type="text/template">
+               ## Overview
+
+               * Inspired by haskell
+               * Compiles to Javascript
+               * Purely functional
+               * Strongly typed
+              </script>
+          </section>
+				  <section data-markdown>
+              <script type="text/template">
+               ## Setup
+
+               * [Install Elm](https://guide.elm-lang.org/install.html)
+               * [Install Node.js](https://nodejs.org/en/)
+               * [Install Gulp](https://www.npmjs.com/package/gulp-cli)
+               * Install extension to circumvent same origin policy
+                   * [CORS Everywhere](https://addons.mozilla.org/sk/firefox/addon/cors-everywhere/) for Firefox
+                   * [Allow-Control-Allow-Origin: *](https://chrome.google.com/webstore/detail/allow-control-allow-origi/nlfbmbojpeacfghkpbjhddihlkkiljbi) for Chrome
+               * Clone the [Elm Dashboard project](https://github.com/martin-kolinek/elm-dashboard)
+               * Build and run the project (gulp dev)
+               * Checkout the work branch
+              </script>
+          </section>
+				  <section>
+              <section data-markdown>
+                  <script type="text/template">
+                   ## Basics
+
+                   Use `elm-repl` to experiment
+
+                   ### Literals and operations
+
+                   ```elm
+                   2 + (1 * 3) / 2
+                   "Hello " ++ "World!"
+                   ```
+                  </script>
+              </section>
+              <section data-markdown>
+                  <script type="text/template">
+                   ### Functions
+
+                   * Take arguments and return a value
+                   * Cannot access outside world
+
+                   ```elm
+                   addOne x = x + 1
+                   isRight a b c = a*a + b*b == c*c
+                   ```
+
+                   ### Function types
+                   ```elm
+                   addOne : number -> number
+                   isRight : number -> number -> number -> number
+                   ```
+              </script>
+              </section>
+          </section>
 			</div>
 		</div>
 
