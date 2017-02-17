@@ -62,7 +62,7 @@
 
                    Use `elm-repl` to experiment
 
-                   ### Literals and operations
+                   ### Literals and operators
 
                    ```elm
                    2 + (1 * 3) / 2
@@ -87,8 +87,106 @@
                    addOne : number -> number
                    isRight : number -> number -> number -> number
                    ```
-              </script>
+                  </script>
               </section>
+              <section data-markdown>
+                  <script type="text/template">
+                   ### Lists
+
+                   * All elements of same type
+
+                   ```elm
+                   someList = [1, 2, 3] ++ [4, 5, 6]
+                   someList : List Int
+                   otherList = 1 :: 2 :: [3, 4]
+                   ```
+
+                   ### Tuples
+
+                   * Fixed length
+                   * Elements of different types
+
+                   ```elm
+                   pair = (2, "something")
+                   pair : (Int, String)
+                   ```
+                  </script>
+              </section>
+              <section data-markdown>
+                  <script type="text/template">
+                   ### Records
+
+                   * Structures
+                   * Immutable
+
+                   ```elm
+                   person = { name = "John Doe" age = 31 }
+                   person : { name: String, age: Int }
+
+                   olderJohn = { person | age = 32 }
+
+                   johnsName = person.name
+                   johnsName = .name person
+                   ```
+                  </script>
+              </section>
+              <section data-markdown>
+                  <script type="text/template">
+                   ### Type aliases
+
+                   ```elm
+                   type alias Person = { name: String, age: Int }
+                   ```
+
+                   ### New types
+                   ```elm
+                   type MyResult = Success Int | Failure String
+                   ```
+                  </script>
+              </section>
+              <section data-markdown>
+                  <script type="text/template">
+                   ### Let expressions
+
+                   ```elm
+                   name = let surname = "Doe" in "John " ++ surname
+                   name : String
+                   ```
+
+                   ### Deconstructing
+                   ```elm
+                   getName { name } = name
+                   getName : { name: a } -> a
+
+                   getResultDescription result = case result of
+                     Success x -> "Good: " ++ toString x
+                     Failure x -> "Bad: " ++ x
+                   getResultDescription : MyResult -> String
+                   ```
+                  </script>
+              </section>
+          </section>
+          <section data-markdown>
+              <script type="text/template">
+               ## Elm programs
+
+               ```elm
+               main = program { view = myView, update = myUpdate,
+                 init = myInit, subscriptions = Sub.none }
+               type alias Model = { thingToDisplay: String }
+               type Msg = ChangeThingToDisplay
+
+               myInit : (Model, Cmd Msg)
+               myInit = ({ thingToDisplay = "Hello World" }, Cmd.none )
+               myUpdate : Msg -> Model -> Model
+               myUpdate msg model = case msg of
+                 ChangeThingToDisplay -> { model |
+                   thingToDisplay = model.thingToDisplay ++ "!" }
+               myView : Model -> Html Msg
+               myView model = h1 [onClick ChangeThingToDisplay]
+                 [text model.thingToDisplay]
+               ```
+              </script>
           </section>
 			</div>
 		</div>
