@@ -35,7 +35,7 @@ body > div > div {
 
 div.dashboard-side {
     float: left;
-    background-color: #F0AE4E;
+    background-color: #B192BF;
     margin: 0;
     padding: 0;
     min-height: 100%;
@@ -117,6 +117,7 @@ div.news-item span.news-time {
 div.calendar {
     width: 40em;
     padding: 2em;
+    background-color: #F0AE4E;
 }
 
 div.calendar h1 {
