@@ -9,11 +9,16 @@ import HttpBuilder
 import Http
 import Json.Decode
 import Time
+import Date
+import Regex
+import Date.Extra
 
 type alias NewsItem =
     {
         id : Int,
-        title: String
+        category: String,
+        title: String,
+        published: Date.Date
     }
 
 type News = NewsItems (List NewsItem) | NewsProblem String
@@ -72,9 +77,24 @@ newsItemsDecoder : Json.Decode.Decoder (List NewsItem)
 newsItemsDecoder = Json.Decode.field "d" (Json.Decode.list newsItemDecoder)
 
 newsItemDecoder : Json.Decode.Decoder NewsItem
-newsItemDecoder = Json.Decode.map2 NewsItem
+newsItemDecoder = Json.Decode.map4 NewsItem
                   (Json.Decode.field "Id" Json.Decode.int)
+                  (Json.Decode.succeed "Services")
                   (Json.Decode.field "Title" Json.Decode.string)
+                  (Json.Decode.field "Published" (Json.Decode.string |> Json.Decode.andThen parseDateString))
+
+parseDateString : String -> Json.Decode.Decoder Date.Date
+parseDateString str =
+    let rgx = Regex.regex "\\d+"
+        matches = Regex.find (Regex.AtMost 1) rgx str
+        result = matches |>
+                 List.head |>
+                 Result.fromMaybe "Not found" |>
+                 Result.map .match |>
+                 Result.andThen String.toInt
+    in case result of
+           Ok res -> Json.Decode.succeed (Date.fromTime (toFloat res))
+           Err err -> Json.Decode.fail err
 
 findVisibleNews : List NewsItem -> Set.Set Int -> List NewsItem
 findVisibleNews newsItems dismissedNews = List.filter (\x -> not (Set.member x.id dismissedNews)) newsItems
@@ -89,9 +109,10 @@ view { currentNews, dismissedNews } = div [class "news dashboard-item"]
     )
 
 viewNewsItem : NewsItem -> Html Msg
-viewNewsItem { title, id } =
+viewNewsItem { title, id, published } =
     div [class "news-item"] [
-         a [href ("https://sps2010.erninet.ch/news/Services/Lists/Posts/ViewPost.aspx?ID=" ++ toString id), target "_blank"] [text title],
+         span [class "news-time"] [text (Date.Extra.toFormattedString "EEE, MMM dd yyyy" published)],
+         a [href ("https://sps2010.erninet.ch/news/Services/Lists/Posts/ViewPost.aspx?ID=" ++ toString id), target "_blank", Html.Attributes.title title] [text title],
          span [class "dismiss-news", onClick (DismissNewsItem id)] []
         ]
 

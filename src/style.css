@@ -66,8 +66,13 @@ div.news {
     padding: 2em;
 }
 
-div.news a {
+div.news-item a {
     color: #3f3f41;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: inline-block;
+    width: 29em;
 }
 
 div.news h1 {
@@ -98,6 +103,15 @@ div.news-item span.dismiss-news {
 
 div.news-item span.dismiss-news:before {
     content: "\f00d";
+}
+
+div.news-item span.news-time {
+    display: inline-block;
+    font-weight: bold;
+    width: 12.5em;
+    text-align: right;
+    padding-right: 2em;
+    font-weight: bold;
 }
 
 div.calendar {
