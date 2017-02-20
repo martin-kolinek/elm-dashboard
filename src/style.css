@@ -152,8 +152,9 @@ div.notes-container {
     display: flex;
     flex-direction: column;
     flex-wrap: wrap;
-    height: 100vh;
-    width: 50vw;
+    height: calc(100vh - 2em);
+    padding-bottom: 2em;
+    padding-right: 2em;
 }
 
 div.note {
@@ -161,7 +162,7 @@ div.note {
     padding: 2em;
     margin-top: 2em;
     margin-left: 2em;
-    width: 27em;
+    width: 30em;
     text-align: center;
 }
 
@@ -170,7 +171,7 @@ div.note textarea {
     margin-left: auto;
     margin-right: auto;
     height: 20em;
-    width: calc(33em + 10px);
+    width: calc(37.5em + 10px);
     padding: 10px;
     border: solid 1px #dcdcdc;
     transition: box-shadow 0.3s, border 0.3s;
