@@ -8,24 +8,49 @@
 
 html {
     height: 100%;
+    padding: 0;
+    margin: 0;
 }
 
 body {
     background-color: rgb(219, 220, 222);
-    min-height: 95%;
+    color: #3f3f41;
     font-family: Futura,Trebuchet MS,Arial,sans-serif;
-    color: rgb(219, 220, 222);
+    padding: 0;
+    margin: 0;
+    height: 100%;
+}
+
+body > div {
+    height: 100%;
+    padding: 0;
+    margin: 0;
+}
+
+body > div > div {
+    height: 100%;
+    padding: 0;
+    margin: 0;
+}
+
+div.dashboard-side {
+    float: left;
+    /* background-color: #F6CB90; */
+    background-color: #F0AE4E;
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+    box-shadow: 0 0 1em #888888;
 }
 
 div.dashboard-item {
-    background-color: #444455;
-    padding: 2em;
-    border-radius: 0.5em;
-    margin: 1em;
 }
 
 div.clock {
     text-align: center;
+    padding-top: 2em;
+    padding-bottom: 2em;
+    background-color: #94ac5e
 }
 
 div.time {
@@ -38,10 +63,12 @@ div.date {
 
 div.news {
     width: 40em;
+    background-color:#B192BF;
+    padding: 2em;
 }
 
 div.news a {
-    color: #CCCCFF
+    color: #3f3f41;
 }
 
 div.news h1 {
@@ -50,15 +77,10 @@ div.news h1 {
     text-align: center;
 }
 
-h1.news-error {
-    color: #FFAAAA
-}
-
 div.news-item {
     margin: 0.3em;
-    background-color: #555566;
+    background-color: #C4B4D8;
     padding: 0.3em;
-    border-radius: 0.2em;
     font-size: 85%;
 }
 
@@ -75,6 +97,7 @@ div.news-item span.dismiss-news:before {
 
 div.calendar {
     width: 40em;
+    padding: 2em;
 }
 
 div.calendar h1 {
@@ -85,10 +108,9 @@ div.calendar h1 {
 
 div.calendar-item {
     margin: 0.3em;
-    background-color: #555566;
     padding: 0.3em;
-    border-radius: 0.2em;
     font-size: 85%;
+    background-color: #F4BD71;
 }
 
 span.calendar-time {
@@ -97,15 +119,33 @@ span.calendar-time {
     text-align: right;
     padding-right: 2em;
     font-weight: bold;
-    color: #BBBBBB;
+}
+
+div.notes-container {
+    float: left;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    height: 100vh;
+    width: 50vw;
+}
+
+div.note {
+    background-color: #e27964;
+    padding: 2em;
+    margin-top: 2em;
+    margin-left: 2em;
+    width: 27em;
+    text-align: center;
 }
 
 div.note textarea {
     display: block;
-    width: 40em;
+    margin-left: auto;
+    margin-right: auto;
     height: 20em;
+    width: calc(33em + 10px);
     padding: 10px;
-	  border-radius:3px;
     border: solid 1px #dcdcdc;
     transition: box-shadow 0.3s, border 0.3s;
     margin-bottom: 1em;
@@ -113,30 +153,16 @@ div.note textarea {
 
 div.note textarea:focus {
     border: solid 1px #707070;
-    box-shadow: 0 0 5px 1px #969696;
 }
 
 div.note button {
-	box-shadow:inset 0px -3px 7px 0px #29bbff;
-	background:linear-gradient(to bottom, #2dabf9 5%, #0688fa 100%);
-	background-color:#2dabf9;
-	border-radius:3px;
-	border:1px solid #0b0e07;
-	display:inline-block;
-	cursor:pointer;
-	color:#ffffff;
-	padding:10px 23px;
-	text-decoration:none;
-}
-
-div.note button:hover {
-	background:linear-gradient(to bottom, #0688fa 5%, #2dabf9 100%);
-	background-color:#0688fa;
-}
-
-div.note button:active {
-	position:relative;
-	top:1px;
+	  background-color:#0054a6;
+	  border-width:0px;
+	  display:inline-block;
+	  cursor:pointer;
+	  color:#ffffff;
+	  padding:10px 23px;
+	  text-decoration:none;
 }
 
 div.note div.edit {

@@ -49,8 +49,8 @@ view : Model -> Html Msg
 view model = div [] ([
     div [class "dashboard-side"] [
             Clock.view model.clock |> Html.map ClockMsg,
-            News.view model.news |> Html.map NewsMsg,
-            Calendar.view model.calendar |> Html.map CalendarMsg
+            Calendar.view model.calendar |> Html.map CalendarMsg,
+            News.view model.news |> Html.map NewsMsg
         ],
     Notes.view model.notes |> Html.map NotesMsg
     ])
