@@ -1,10 +1,10 @@
 port module LocalStorage exposing (..)
 
-port saveDismissedNews: List Int -> Cmd msg
+port saveDismissedNews: List (String, Int) -> Cmd msg
 
 port loadDismissedNews: () -> Cmd msg
 
-port dismissedNews: (List Int -> msg) -> Sub msg
+port dismissedNews: (List (String, Int) -> msg) -> Sub msg
 
 type alias Note =
     {

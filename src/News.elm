@@ -13,6 +13,17 @@ import Date
 import Regex
 import Date.Extra
 
+categories : List String
+categories = ["Management", "strategy2020", "People", "Customer", "Projects", "Services", "Corporate"]
+
+createFetchUrl : String -> String
+createFetchUrl category =
+    "https://sps2010.erninet.ch/news/" ++ category ++ "/_vti_bin/listdata.svc/Posts()?$top=20&$orderby=Id desc"
+
+createItemUrl : String -> Int -> String
+createItemUrl category id =
+    "https://sps2010.erninet.ch/news/" ++ category ++ "/Lists/Posts/ViewPost.aspx?ID=" ++ toString id
+
 type alias NewsItem =
     {
         id : Int,
@@ -21,65 +32,72 @@ type alias NewsItem =
         published: Date.Date
     }
 
-type News = NewsItems (List NewsItem) | NewsProblem String
+type alias News = Result String (List NewsItem)
 
 type alias Model =
     {
         currentNews: News,
-        dismissedNews: Set.Set Int
+        dismissedNews: Set.Set (String, Int)
     }
 
-type Msg = SetNews (News) | UpdateNews | DismissNewsItem Int | UpdateDismissedNews (List Int)
+type Msg = SetNews (News) | UpdateNews | DismissNewsItem NewsItem | UpdateDismissedNews (List (String, Int))
 
 initModel : Model
 initModel =
     {
-        currentNews = NewsItems [],
+        currentNews = Ok [],
         dismissedNews = Set.empty
     }
 
 initCmd : Cmd Msg
 initCmd = Cmd.batch
-    [
-     fetchNews,
-     LocalStorage.loadDismissedNews ()
-    ]
+  (LocalStorage.loadDismissedNews () :: List.map fetchNews categories)
+
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
     case msg of
-        SetNews news -> ({model | currentNews = news}, Cmd.none)
-        UpdateNews -> (model, fetchNews)
-        DismissNewsItem id -> updateDismissedNews model (Set.insert id model.dismissedNews)
-        UpdateDismissedNews ids -> updateDismissedNews model (Set.union (Set.fromList ids) model.dismissedNews)
+        SetNews news -> (updateCurrentNews model news, Cmd.none)
+        UpdateNews -> (model, Cmd.batch (List.map fetchNews categories))
+        DismissNewsItem { id, category } -> updateDismissedNews model (Set.insert (category, id) model.dismissedNews)
+        UpdateDismissedNews dismissedItems -> updateDismissedNews model (Set.union (Set.fromList dismissedItems) model.dismissedNews)
 
-updateDismissedNews : Model -> Set.Set Int -> (Model, Cmd msg)
+updateCurrentNews : Model -> News -> Model
+updateCurrentNews model newNews =
+    case (model.currentNews, newNews) of
+        (Ok oldNewsItems, Ok newNewsItems) ->
+            let newKeys = Set.fromList (List.map (\x -> (x.category, x.id)) newNewsItems)
+                filteredOldNews = List.filter (\x -> not (Set.member (x.category, x.id) newKeys)) oldNewsItems
+            in { model | currentNews = Ok (newNewsItems ++ filteredOldNews) }
+        (old, new) -> { model | currentNews = old |> Result.andThen (always new) }
+
+updateDismissedNews : Model -> Set.Set (String, Int) -> (Model, Cmd msg)
 updateDismissedNews model newDismissedNews = ( {model | dismissedNews = newDismissedNews}, LocalStorage.saveDismissedNews (Set.toList newDismissedNews))
 
-fetchNews : Cmd Msg
-fetchNews =
-    HttpBuilder.get "https://sps2010.erninet.ch/news/Services/_vti_bin/listdata.svc/Posts()?$top=20&$orderby=Id desc" |>
-    HttpBuilder.withExpect (Http.expectJson newsItemsDecoder) |>
+fetchNews : String -> Cmd Msg
+fetchNews category =
+    HttpBuilder.get (createFetchUrl category) |>
+    HttpBuilder.withExpect (Http.expectJson (newsItemsDecoder category)) |>
     HttpBuilder.withCredentials |>
     HttpBuilder.withHeader "Accept" "application/json" |>
     HttpBuilder.send parseResponse
 
 parseResponse : Result Http.Error (List NewsItem) -> Msg
 parseResponse response = case response of
-    Ok items -> SetNews (NewsItems items)
-    Err (Http.BadUrl _) -> SetNews (NewsProblem "Wrong URL for some reason")
-    Err Http.Timeout -> SetNews (NewsProblem "Timeout occurred")
-    Err Http.NetworkError -> SetNews (NewsProblem "Network error (do you have CorsE enabled?)")
-    Err (Http.BadStatus {status}) -> SetNews (NewsProblem ("Http problem: " ++ (toString status.code) ++ " " ++ status.message))
-    Err (Http.BadPayload _ _) -> SetNews (NewsProblem "Unexpected response format")
+    Ok items -> SetNews (Ok items)
+    Err (Http.BadUrl _) -> SetNews (Err "Wrong URL for some reason")
+    Err Http.Timeout -> SetNews (Err "Timeout occurred")
+    Err Http.NetworkError -> SetNews (Err "Network error (do you have CorsE enabled?)")
+    Err (Http.BadStatus {status}) -> SetNews (Err ("Http problem: " ++ (toString status.code) ++ " " ++ status.message))
+    Err (Http.BadPayload _ _) -> SetNews (Err "Unexpected response format")
 
-newsItemsDecoder : Json.Decode.Decoder (List NewsItem)
-newsItemsDecoder = Json.Decode.field "d" (Json.Decode.list newsItemDecoder)
+newsItemsDecoder : String -> Json.Decode.Decoder (List NewsItem)
+newsItemsDecoder category = Json.Decode.field "d" (Json.Decode.list (newsItemDecoder category))
 
-newsItemDecoder : Json.Decode.Decoder NewsItem
-newsItemDecoder = Json.Decode.map4 NewsItem
+newsItemDecoder : String -> Json.Decode.Decoder NewsItem
+newsItemDecoder category = Json.Decode.map4 NewsItem
                   (Json.Decode.field "Id" Json.Decode.int)
-                  (Json.Decode.succeed "Services")
+                  (Json.Decode.succeed category)
                   (Json.Decode.field "Title" Json.Decode.string)
                   (Json.Decode.field "Published" (Json.Decode.string |> Json.Decode.andThen parseDateString))
 
@@ -96,24 +114,28 @@ parseDateString str =
            Ok res -> Json.Decode.succeed (Date.fromTime (toFloat res))
            Err err -> Json.Decode.fail err
 
-findVisibleNews : List NewsItem -> Set.Set Int -> List NewsItem
-findVisibleNews newsItems dismissedNews = List.filter (\x -> not (Set.member x.id dismissedNews)) newsItems
+findVisibleNews : List NewsItem -> Set.Set (String, Int) -> List NewsItem
+findVisibleNews newsItems dismissedNews =
+    newsItems |>
+    List.filter (\x -> not (Set.member (x.category, x.id) dismissedNews)) |>
+    List.sortBy (.published >> Date.toTime >> negate) |>
+    List.take 7
 
 view : Model -> Html Msg
 view { currentNews, dismissedNews } = div [class "news dashboard-item"]
     (case currentNews of
-         NewsItems newsItems -> case findVisibleNews newsItems dismissedNews of
+         Ok newsItems -> case findVisibleNews newsItems dismissedNews of
              [] -> [h1 [] [text "No recent news"]]
              visibleNews -> (h1 [] [text "Latest news"] :: (List.map viewNewsItem visibleNews))
-         NewsProblem problem -> [h1 [class "news-error"] [text "Unable to fetch news"], p [class "news-error"] [text problem]]
+         Err problem -> [h1 [class "news-error"] [text "Unable to fetch news"], p [class "news-error"] [text problem]]
     )
 
 viewNewsItem : NewsItem -> Html Msg
-viewNewsItem { title, id, published } =
+viewNewsItem model =
     div [class "news-item"] [
-         span [class "news-time"] [text (Date.Extra.toFormattedString "EEE, MMM dd yyyy" published)],
-         a [href ("https://sps2010.erninet.ch/news/Services/Lists/Posts/ViewPost.aspx?ID=" ++ toString id), target "_blank", Html.Attributes.title title] [text title],
-         span [class "dismiss-news", onClick (DismissNewsItem id)] []
+         span [class "news-time"] [text (Date.Extra.toFormattedString "EEE, MMM dd yyyy" model.published)],
+         a [href (createItemUrl model.category model.id), target "_blank", title model.title] [text model.title],
+         span [class "dismiss-news", onClick (DismissNewsItem model)] []
         ]
 
 subscriptions : Model -> Sub Msg
