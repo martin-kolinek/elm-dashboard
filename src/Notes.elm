@@ -48,8 +48,9 @@ tryChangeEditingStatus id status note = if note.id == id then {note | currentlyE
 tryChangeContent : Int -> String -> LocalStorage.Note -> LocalStorage.Note
 tryChangeContent id str note = if note.id == id then {note | content = str} else note
 
-view : Model -> List (Html Msg)
-view { newNote, notes } = div [class "dashboard-item note"] [textarea [onInput UpdateNewNote, value newNote] [], button [onClick CreateNote] [text "Save Note"]] :: List.map viewNote notes
+view : Model -> Html Msg
+view { newNote, notes } = div [class "notes-container"]
+    (div [class "dashboard-item note"] [textarea [onInput UpdateNewNote, value newNote] [], button [onClick CreateNote] [text "Save Note"]] :: List.map viewNote notes)
 
 viewNote : LocalStorage.Note -> Html Msg
 viewNote { id, currentlyEditing, content} = div [class "dashboard-item note"] (

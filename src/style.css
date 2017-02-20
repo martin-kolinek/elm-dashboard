@@ -11,17 +11,10 @@ html {
 }
 
 body {
-    background-color: #333344;
+    background-color: rgb(219, 220, 222);
     min-height: 95%;
     font-family: Futura,Trebuchet MS,Arial,sans-serif;
-    color: #CCCCCC;
-}
-
-div.dashboard-container {
-    display:flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: flex-start;
+    color: rgb(219, 220, 222);
 }
 
 div.dashboard-item {

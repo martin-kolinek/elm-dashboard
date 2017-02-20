@@ -46,12 +46,14 @@ update msg model =
         LocationChange -> (model, Cmd.none)
 
 view : Model -> Html Msg
-view model = div [class "dashboard-container"]
-    ([
-         Clock.view model.clock |> Html.map ClockMsg,
-         News.view model.news |> Html.map NewsMsg,
-         Calendar.view model.calendar |> Html.map CalendarMsg
-     ] ++ (List.map (Html.map NotesMsg) (Notes.view model.notes)))
+view model = div [] ([
+    div [class "dashboard-side"] [
+            Clock.view model.clock |> Html.map ClockMsg,
+            News.view model.news |> Html.map NewsMsg,
+            Calendar.view model.calendar |> Html.map CalendarMsg
+        ],
+    Notes.view model.notes |> Html.map NotesMsg
+    ])
 
 subscriptions : Model -> Sub Msg
 subscriptions model = Sub.batch [
