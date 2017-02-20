@@ -101,8 +101,8 @@ parseCalendarResponse response = case response of
     Err x -> SetCalendar (CalendarError ("Parse cal resp " ++ toString x))
 
 view : Model -> Html Msg
-view model = div [class "calendar dashboard-item"] (h1 [] [text "Upcoming events"] :: case model.calendar of
-    CalendarItems items -> List.map viewItem (List.take 7 items)
+view model = div [class "calendar dashboard-item"] (h1 [] [text "Upcoming Events"] :: case model.calendar of
+    CalendarItems items -> List.map viewItem (List.take 8 items)
     CalendarError err -> [text err])
 
 viewItem : CalendarItem -> Html Msg

@@ -119,14 +119,14 @@ findVisibleNews newsItems dismissedNews =
     newsItems |>
     List.filter (\x -> not (Set.member (x.category, x.id) dismissedNews)) |>
     List.sortBy (.published >> Date.toTime >> negate) |>
-    List.take 7
+    List.take 8
 
 view : Model -> Html Msg
 view { currentNews, dismissedNews } = div [class "news dashboard-item"]
     (case currentNews of
          Ok newsItems -> case findVisibleNews newsItems dismissedNews of
-             [] -> [h1 [] [text "No recent news"]]
-             visibleNews -> (h1 [] [text "Latest news"] :: (List.map viewNewsItem visibleNews))
+             [] -> [h1 [] [text "No Recent News"]]
+             visibleNews -> (h1 [] [text "Latest News"] :: (List.map viewNewsItem visibleNews))
          Err problem -> [h1 [class "news-error"] [text "Unable to fetch news"], p [class "news-error"] [text problem]]
     )
 
