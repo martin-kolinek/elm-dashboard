@@ -126,7 +126,7 @@ div.calendar-item {
 
 span.calendar-time {
     display: inline-block;
-    width: 17em;
+    width: 12.5em;
     text-align: right;
     padding-right: 2em;
     font-weight: bold;

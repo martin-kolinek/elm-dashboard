@@ -106,4 +106,4 @@ view model = div [class "calendar dashboard-item"] (h1 [] [text "Upcoming events
     CalendarError err -> [text err])
 
 viewItem : CalendarItem -> Html Msg
-viewItem { startDate, title } = div [class "calendar-item"] [span [class "calendar-time"] [text (Date.Extra.toFormattedString "EEE, MMM ddd yyyy, HH:mm" startDate)], text title]
+viewItem { startDate, title } = div [class "calendar-item"] [span [class "calendar-time"] [text (Date.Extra.toFormattedString "EEE, MMM dd, HH:mm" startDate)], text title]
