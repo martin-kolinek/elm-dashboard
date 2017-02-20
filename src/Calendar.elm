@@ -102,7 +102,7 @@ parseCalendarResponse response = case response of
 
 view : Model -> Html Msg
 view model = div [class "calendar dashboard-item"] (h1 [] [text "Upcoming events"] :: case model.calendar of
-    CalendarItems items -> List.map viewItem items
+    CalendarItems items -> List.map viewItem (List.take 7 items)
     CalendarError err -> [text err])
 
 viewItem : CalendarItem -> Html Msg
