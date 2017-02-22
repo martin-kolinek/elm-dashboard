@@ -172,7 +172,7 @@
 
                ```elm
                main = program { view = myView, update = myUpdate,
-                 init = myInit, subscriptions = Sub.none }
+                 init = myInit, subscriptions = always Sub.none }
                type alias Model = { thingToDisplay: String }
                type Msg = ChangeThingToDisplay
 
