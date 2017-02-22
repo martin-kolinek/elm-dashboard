@@ -158,12 +158,12 @@ div.notes-container {
 }
 
 div.note {
-    background-color: #e27964;
+    background-color: #EA9982;
     padding: 2em;
     margin-top: 2em;
     margin-left: 2em;
     width: 30em;
-    text-align: center;
+    text-size: 12px;
 }
 
 div.note textarea {
@@ -171,6 +171,7 @@ div.note textarea {
     margin-left: auto;
     margin-right: auto;
     height: 20em;
+    font-size: 12px;
     width: calc(37.5em + 10px);
     padding: 10px;
     border: solid 1px #dcdcdc;
@@ -183,11 +184,14 @@ div.note textarea:focus {
 }
 
 div.note button {
-	  background-color:#0054a6;
+	  background-color:#E37964;
+    color: #3f3f41;
+    font-weight: bold;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
 	  border-width:0px;
-	  display:inline-block;
 	  cursor:pointer;
-	  color:#ffffff;
 	  padding:10px 23px;
 	  text-decoration:none;
 }
@@ -212,4 +216,8 @@ div.note div.remove {
 
 div.note div.remove:before {
     content: "\f00d";
+}
+
+div.note a {
+    color: #5f5f61;
 }

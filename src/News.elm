@@ -127,7 +127,7 @@ view { currentNews, dismissedNews } = div [class "news dashboard-item"]
          Ok newsItems -> case findVisibleNews newsItems dismissedNews of
              [] -> [h1 [] [text "No Recent News"]]
              visibleNews -> (h1 [] [text "Latest News"] :: (List.map viewNewsItem visibleNews))
-         Err problem -> [h1 [class "news-error"] [text "Unable to fetch news"], p [class "news-error"] [text problem]]
+         Err problem -> [h1 [class "news-error"] [text "Unable to Fetch News"], p [class "news-error"] [text problem]]
     )
 
 viewNewsItem : NewsItem -> Html Msg
