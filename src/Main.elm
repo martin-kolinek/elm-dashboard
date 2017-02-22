@@ -1,17 +1,23 @@
 import Html exposing (..)
+import Html.Events exposing (..)
 
 main : Program Never Model Msg
-main = beginnerProgram { model = model, view = view, update = update }
+main = program { init = init, view = view, update = update, subscriptions = subscriptions }
 
-type alias Model = ()
+type alias Model = { thingToDisplay: String}
+type Msg = ChangeThingToDisplay
 
-model : Model
-model = ()
+init : (Model, Cmd Msg)
+init = ({ thingToDisplay = "Hello World"}, Cmd.none)
 
-type Msg = Unused
 
-update : Msg -> Model -> Model
-update _ model = model
+update : Msg -> Model -> (Model, Cmd Msg)
+update msg model =
+    case msg of
+        ChangeThingToDisplay -> ({ model | thingToDisplay = model.thingToDisplay ++ "!" }, Cmd.none)
 
 view : Model -> Html Msg
-view model = div [] [text "Hello world"]
+view model = h1 [onClick ChangeThingToDisplay] [text model.thingToDisplay]
+
+subscriptions : Model -> Sub Msg
+subscriptions _ = Sub.none
