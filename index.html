@@ -7,7 +7,7 @@
 		<title>Elm</title>
 
 		<link rel="stylesheet" href="css/reveal.css">
-		<link rel="stylesheet" href="css/theme/black.css">
+		<link rel="stylesheet" href="css/theme/night.css">
 
 		<!-- Theme used for syntax highlighting of code -->
 		<link rel="stylesheet" href="lib/css/zenburn.css">
@@ -34,10 +34,12 @@
               <script type="text/template">
                ## Overview
 
-               * Inspired by haskell
+               * Inspired by Haskell
                * Compiles to Javascript
                * Purely functional
                * Strongly typed
+               * Opinionated
+               * The Elm Architecture
               </script>
           </section>
 				  <section data-markdown>
@@ -53,7 +55,7 @@
               </script>
           </section>
 				  <section>
-              <section data-markdown>
+              <section data-markdown data-separator-notes="^Note:">
                   <script type="text/template">
                    ## Basics
 
@@ -67,26 +69,36 @@
                    ```
                   </script>
               </section>
-              <section data-markdown>
+              <section data-markdown data-separator-notes="^Note:">
                   <script type="text/template">
                    ### Functions
 
                    * Take arguments and return a value
                    * Cannot access outside world
+                   * Can be returned from functions
+                   * Can be passed as parameters
 
                    ```elm
                    addOne x = x + 1
                    isRight a b c = a*a + b*b == c*c
+                   identity x = x
+                   apply f x = f x
                    ```
 
-                   ### Function types
+                   ### Function Types
                    ```elm
                    addOne : number -> number
                    isRight : number -> number -> number -> number
+                   identity: a -> a
                    ```
+
+                   Note:
+                   Write a function which adds an exclamation mark after its input
+
+                   What is the type of the apply function
                   </script>
               </section>
-              <section data-markdown>
+              <section data-markdown data-separator-notes="^Note:">
                   <script type="text/template">
                    ### Lists
 
@@ -107,9 +119,12 @@
                    pair = (2, "something")
                    pair : (Int, String)
                    ```
+
+                   Note:
+                   Write a function which repeats the same thing n times in a list
                   </script>
               </section>
-              <section data-markdown>
+              <section data-markdown data-separator-notes="^Note:">
                   <script type="text/template">
                    ### Records
 
@@ -125,25 +140,31 @@
                    johnsName = person.name
                    johnsName = .name person
                    ```
+
+                   Note:
+                   Write a function which ages a person by a given number of years
                   </script>
               </section>
-              <section data-markdown>
+              <section data-markdown data-separator-notes="^Note:">
                   <script type="text/template">
-                   ### Type aliases
+                   ### Type Aliases
 
                    ```elm
                    type alias Person = { name: String, age: Int }
                    ```
 
-                   ### New types
+                   ### New Types
                    ```elm
                    type MyResult = Success Int | Failure String
                    ```
+
+                   Note:
+                   Create a type representing some colors
                   </script>
               </section>
-              <section data-markdown>
+              <section data-markdown data-separator-notes="^Note:">
                   <script type="text/template">
-                   ### Let expressions
+                   ### Let Expressions
 
                    ```elm
                    name = let surname = "Doe" in "John " ++ surname
@@ -160,12 +181,15 @@
                      Failure x -> "Bad: " ++ x
                    getResultDescription : MyResult -> String
                    ```
+
+                   Note:
+                   Write a function which sums a list of numbers
                   </script>
               </section>
           </section>
-          <section data-markdown>
+          <section data-markdown data-separator-notes="^Note:">
               <script type="text/template">
-               ## Elm programs
+               ## Elm Programs
 
                ```elm
                main = program { view = myView, update = myUpdate,
@@ -188,14 +212,17 @@
           <section>
               <h1>Let's try it out</h1>
           </section>
-          <section data-markdown>
+          <section data-markdown data-separator-notes="^Note:">
               <script type="text/template">
-               ## To summarize
+               ## To Summarize
 
                * Easy way to try out functional programming
                * Not really mature
                * Boilerplate required sometimes
                * Can be useful for inspiration
+
+               Note:
+               Redux is inspired by Elm
               </script>
           </section>
 			</div>
