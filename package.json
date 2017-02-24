@@ -13,5 +13,8 @@
   },
   "dependencies": {
     "elm": "^0.18.0"
+  },
+  "scripts": {
+    "start": "gulp dev"
   }
 }
