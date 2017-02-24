@@ -1,0 +1,223 @@
+@font-face {
+    font-family: 'FontAwesome';
+    src: url('fonts/fontawesome-webfont.eot?v=4.7.0');
+    src: url('fonts/fontawesome-webfont.eot?#iefix&v=4.7.0') format('embedded-opentype'), url('fonts/fontawesome-webfont.woff2?v=4.7.0') format('woff2'), url('fonts/fontawesome-webfont.woff?v=4.7.0') format('woff'), url('fonts/fontawesome-webfont.ttf?v=4.7.0') format('truetype'), url('fonts/fontawesome-webfont.svg?v=4.7.0#fontawesomeregular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+html {
+    height: 100%;
+    padding: 0;
+    margin: 0;
+}
+
+body {
+    background-color: rgb(219, 220, 222);
+    color: #3f3f41;
+    font-family: Futura,Trebuchet MS,Arial,sans-serif;
+    padding: 0;
+    margin: 0;
+    height: 100%;
+}
+
+body > div {
+    height: 100%;
+    padding: 0;
+    margin: 0;
+}
+
+body > div > div {
+    height: 100%;
+    padding: 0;
+    margin: 0;
+}
+
+div.dashboard-side {
+    float: left;
+    background-color: #B192BF;
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+    box-shadow: 0 0 1em #888888;
+}
+
+div.dashboard-item {
+}
+
+div.clock {
+    text-align: center;
+    padding-top: 2em;
+    padding-bottom: 2em;
+    background-color: #94ac5e
+}
+
+div.time {
+    font-size: 4em;
+}
+
+div.date {
+    font-size: 1.5em;
+}
+
+div.news {
+    width: 40em;
+    background-color:#B192BF;
+    padding: 2em;
+}
+
+div.news-item a {
+    color: #3f3f41;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: inline-block;
+    width: 29em;
+}
+
+div.news h1 {
+    margin-top: 0;
+    font-size: 1.7em;
+    text-align: center;
+}
+
+div.news h1:after {
+    content: "\f1ea";
+    margin-left: 1em;
+    font-family: FontAwesome;
+}
+
+div.news-item {
+    margin: 0.3em;
+    background-color: #C4B4D8;
+    padding: 0.3em;
+    font-size: 85%;
+}
+
+div.news-item span.dismiss-news {
+    font-family: FontAwesome;
+    cursor: pointer;
+    float: right;
+    margin-right: 0.4em;
+}
+
+div.news-item span.dismiss-news:before {
+    content: "\f00d";
+}
+
+div.news-item span.news-time {
+    display: inline-block;
+    font-weight: bold;
+    width: 12.5em;
+    text-align: right;
+    padding-right: 2em;
+    font-weight: bold;
+}
+
+div.calendar {
+    width: 40em;
+    padding: 2em;
+    background-color: #F0AE4E;
+}
+
+div.calendar h1 {
+    margin-top: 0;
+    font-size: 1.7em;
+    text-align: center;
+}
+
+div.calendar h1:after {
+    content: "\f073";
+    margin-left: 1em;
+    font-family: FontAwesome;
+}
+
+div.calendar-item {
+    margin: 0.3em;
+    padding: 0.3em;
+    font-size: 85%;
+    background-color: #F4BD71;
+}
+
+span.calendar-time {
+    display: inline-block;
+    width: 12.5em;
+    text-align: right;
+    padding-right: 2em;
+    font-weight: bold;
+}
+
+div.notes-container {
+    float: left;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    height: calc(100vh - 2em);
+    padding-bottom: 2em;
+    padding-right: 2em;
+}
+
+div.note {
+    background-color: #EA9982;
+    padding: 2em;
+    margin-top: 2em;
+    margin-left: 2em;
+    width: 30em;
+    text-size: 12px;
+}
+
+div.note textarea {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    height: 20em;
+    font-size: 12px;
+    width: calc(37.5em + 10px);
+    padding: 10px;
+    border: solid 1px #dcdcdc;
+    transition: box-shadow 0.3s, border 0.3s;
+    margin-bottom: 1em;
+}
+
+div.note textarea:focus {
+    border: solid 1px #707070;
+}
+
+div.note button {
+	  background-color:#E37964;
+    color: #3f3f41;
+    font-weight: bold;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+	  border-width:0px;
+	  cursor:pointer;
+	  padding:10px 23px;
+	  text-decoration:none;
+}
+
+div.note div.edit {
+    font-family: FontAwesome;
+    cursor: pointer;
+    float: right;
+    margin-right: 0.4em;
+}
+
+div.note div.edit:before {
+    content: "\f040";
+}
+
+div.note div.remove {
+    font-family: FontAwesome;
+    cursor: pointer;
+    float: right;
+    margin-right: 0.4em;
+}
+
+div.note div.remove:before {
+    content: "\f00d";
+}
+
+div.note a {
+    color: #5f5f61;
+}
