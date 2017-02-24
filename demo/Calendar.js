@@ -11942,7 +11942,7 @@ var _martin_kolinek$elm_dashboard$Calendar$microsoftAuthClient = A2(
 				_1: {ctor: '[]'}
 			}
 		},
-		redirectUrl: 'http://localhost:3000',
+		redirectUrl: 'https://martin-kolinek.github.io/elm-dashboard/demo/',
 		authFlow: _tiziano88$elm_oauth$OAuth$Implicit
 	});
 var _martin_kolinek$elm_dashboard$Calendar$microsoftAuthorize = _elm_lang$navigation$Navigation$load(
